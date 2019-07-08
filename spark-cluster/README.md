@@ -30,7 +30,7 @@ import os
 os.system("ls /tmp/")
 
 
-# Start forwarder
+# Start forwarder if you want connect to hadoop outsite docker
 docker service create \
         --name hadoop-master-forwarder \
         --constraint node.hostname==cuonglh \
