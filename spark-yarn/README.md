@@ -7,9 +7,12 @@ docker swarm init
 
 docker stack depoy -c docker-compose-docker hadoop
 ## start hdfs
-# docker container ls
-# docker exce -it {{master-container}} bash
 ```bash
+# Check container list
+docker container ls
+# Access to hadoop-master node
+docker exce -it {{master-container}} bash
+
 # stop HDFS services
 sbin/stop-dfs.sh
 
