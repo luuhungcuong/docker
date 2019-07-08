@@ -1,0 +1,65 @@
+version: '3.3'
+
+services:
+  master:
+    image: luuhungcuong/hadoop-base:v2.7.4
+    hostname: hadoop-master
+    networks:
+      net:
+        aliases:
+          - hadoop-master
+    deploy:
+      mode: replicated
+      replicas: 1
+      endpoint_mode: dnsrr      
+
+  slave1:
+    image: luuhungcuong/hadoop-base:v2.7.4
+    hostname: hadoop-slave1
+    networks:
+      net:
+        aliases:
+          - hadoop-slave1
+    deploy:
+      mode: replicated
+      replicas: 1
+      endpoint_mode: dnsrr    
+
+  slave2:
+    image: luuhungcuong/hadoop-base:v2.7.4
+    hostname: hadoop-slave2
+    networks:
+      net:
+        aliases:
+          - hadoop-slave2
+    deploy:
+      mode: replicated
+      replicas: 1
+      endpoint_mode: dnsrr      
+
+  slave3:
+    image: luuhungcuong/hadoop-base:v2.7.4
+    hostname: hadoop-slave3
+    networks:
+      net:
+        aliases:
+          - hadoop-slave3
+    deploy:
+      mode: replicated
+      replicas: 1
+      endpoint_mode: dnsrr      
+
+  proxy:
+    image: luuhungcuong/docker-proxy
+    ports:
+      - "7001:7001"
+    networks:
+      - net
+    deploy:
+      mode: replicated
+      replicas: 1      
+
+networks:
+  net:
+    driver: overlay
+    attachable: true

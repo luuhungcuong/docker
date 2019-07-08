@@ -1,0 +1,148 @@
+version: '3.3'
+
+services:
+  hadoop-master:
+    image: luuhungcuong/hadoop-base:v2.7.4
+    hostname: hadoop-master             
+    volumes:    
+        - "/etc/localtime:/etc/localtime"
+        - "/bigdata/hadoop/config:/config/hadoop"
+        - "/bigdata/hadoop/data/hdfs:/tmp/hadoop-root"
+        - "/bigdata/hadoop/data/logs:/usr/local/hadoop/logs"          
+    networks:
+      net:
+        aliases:
+          - hadoop-master
+    deploy:
+      mode: replicated
+      replicas: 1      
+      endpoint_mode: dnsrr   #Only slave only connect in case dnsrr
+      placement:
+        constraints: [node.role == manager]
+  hadoop-slave1:
+    image: luuhungcuong/hadoop-base:v2.7.4
+    hostname: hadoop-slave1    
+    volumes:  
+        - "/etc/localtime:/etc/localtime"
+        - "/bigdata/hadoop/config:/config/hadoop"
+        - "/bigdata/hadoop/data/hdfs1:/tmp/hadoop-root"
+        - "/bigdata/hadoop/data/logs1:/usr/local/hadoop/logs"      
+    networks:
+      net:
+        aliases:
+          - hadoop-slave1
+    deploy:
+      mode: replicated
+      replicas: 1      
+      endpoint_mode: dnsrr
+      placement:
+        constraints: [node.role == manager]
+
+  hadoop-slave2:
+    image: luuhungcuong/hadoop-base:v2.7.4
+    hostname: hadoop-slave2        
+    volumes:    
+        - "/etc/localtime:/etc/localtime"
+        - "/bigdata/hadoop/config:/config/hadoop"
+        - "/bigdata/hadoop/data/hdfs2:/tmp/hadoop-root"
+        - "/bigdata/hadoop/data/logs2:/usr/local/hadoop/logs"      
+    networks:
+      net:
+        aliases:
+          - hadoop-slave2
+    deploy:
+      mode: replicated
+      endpoint_mode: dnsrr
+      replicas: 1      
+      placement:
+        constraints: [node.role == manager]
+
+  hadoop-slave3:
+    image: luuhungcuong/hadoop-base:v2.7.4
+    hostname: hadoop-slave3        
+    volumes:  
+        - "/etc/localtime:/etc/localtime"
+        - "/bigdata/hadoop/config:/config/hadoop"
+        - "/bigdata/hadoop/data/hdfs3:/tmp/hadoop-root"
+        - "/bigdata/hadoop/data/logs3:/usr/local/hadoop/logs"      
+    networks:
+      net:
+        aliases:
+          - hadoop-slave3
+    deploy:
+      mode: replicated
+      replicas: 1    
+      endpoint_mode: dnsrr  
+      placement:
+        constraints: [node.role == manager]
+  spark-master:
+    image: luuhungcuong/spark:v2.3.3
+    hostname: spark-master    
+    expose:      
+      - 7077      
+    ports:      
+      - 7077:7077      
+    environment:      
+      #- "SPARK_PUBLIC_DNS=192.168.0.162"   
+      - "SPARK_NODE_TYPE=MASTER"                                      
+    networks:
+       net:
+        aliases:
+          - spark-master
+    deploy:
+      mode: replicated
+      replicas: 1      
+      placement:
+        constraints: [node.role == manager]
+  spark-worker:
+    image: luuhungcuong/spark:v2.3.3
+    depends_on:
+      - spark-master 
+    expose:      
+      - 3313      
+    ports:      
+      - 3313:3313      #Using to connect worker port outsite docker. Remove in case dont need
+    environment:      
+      #- "SPARK_PUBLIC_DNS=192.168.0.162"  
+      - "SPARK_NODE_TYPE=SLAVE"         
+      - "SPARK_MASTER_NOTE=spark-master"    
+      - "SPARK_WORKER_PORT=3313"  #Using to connect worker port outsite docker. Remove incase dont need    
+    networks:
+      net:
+        aliases:
+          - spark-worker
+    deploy:
+      mode: replicated
+      replicas: 1      
+      placement:
+        constraints: [node.role == manager]
+  # python-hdfs:
+  #   image: luuhungcuong/python-hdfs    
+  #   tty: true
+  #   networks:
+  #     net:
+  #       aliases:
+  #         - hdfs-client
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #     placement:
+  #       constraints: [node.role == manager]
+  proxy:
+    image: luuhungcuong/docker-proxy
+    ports:
+      - "7001:7001"
+    networks:
+      net:
+        aliases:
+          - docker-proxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+networks:
+  net:
+    driver: overlay
+    attachable: true

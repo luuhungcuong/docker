@@ -1,0 +1,99 @@
+version: '3.3'
+
+services:
+  hadoop-master:
+    image: luuhungcuong/spark-yarn:h2.7-s2.3
+    hostname: hadoop-master             
+    volumes:    
+        - "/etc/localtime:/etc/localtime"
+        - "/bigdata/hadoop/config:/config/hadoop"
+        - "/bigdata/spark/config:/config/spark"
+        - "/bigdata/hadoop/data/hdfs:/tmp/hadoop-root"
+        - "/bigdata/hadoop/data/logs:/usr/local/hadoop/logs"          
+    networks:
+      net:
+        aliases:
+          - hadoop-master
+    deploy:
+      mode: replicated
+      replicas: 1      
+      endpoint_mode: dnsrr   #Only slave only connect in case dnsrr
+      placement:
+        constraints: [node.role == manager]
+  hadoop-slave1:
+    image: luuhungcuong/spark-yarn:h2.7-s2.3
+    hostname: hadoop-slave1    
+    volumes:  
+        - "/etc/localtime:/etc/localtime"
+        - "/bigdata/hadoop/config:/config/hadoop"
+        - "/bigdata/spark/config:/config/spark"
+        - "/bigdata/hadoop/data/hdfs1:/tmp/hadoop-root"
+        - "/bigdata/hadoop/data/logs1:/usr/local/hadoop/logs"      
+    networks:
+      net:
+        aliases:
+          - hadoop-slave1
+    deploy:
+      mode: replicated
+      replicas: 1      
+      endpoint_mode: dnsrr
+      placement:
+        constraints: [node.role == manager]
+
+  hadoop-slave2:
+    image: luuhungcuong/spark-yarn:h2.7-s2.3
+    hostname: hadoop-slave2        
+    volumes:    
+        - "/etc/localtime:/etc/localtime"
+        - "/bigdata/hadoop/config:/config/hadoop"
+        - "/bigdata/spark/config:/config/spark"
+        - "/bigdata/hadoop/data/hdfs2:/tmp/hadoop-root"
+        - "/bigdata/hadoop/data/logs2:/usr/local/hadoop/logs"      
+    networks:
+      net:
+        aliases:
+          - hadoop-slave2
+    deploy:
+      mode: replicated
+      endpoint_mode: dnsrr
+      replicas: 1      
+      placement:
+        constraints: [node.role == manager]
+
+  hadoop-slave3:
+    image: luuhungcuong/spark-yarn:h2.7-s2.3
+    hostname: hadoop-slave3        
+    volumes:  
+        - "/etc/localtime:/etc/localtime"
+        - "/bigdata/hadoop/config:/config/hadoop"
+        - "/bigdata/spark/config:/config/spark"
+        - "/bigdata/hadoop/data/hdfs3:/tmp/hadoop-root"
+        - "/bigdata/hadoop/data/logs3:/usr/local/hadoop/logs"      
+    networks:
+      net:
+        aliases:
+          - hadoop-slave3
+    deploy:
+      mode: replicated
+      replicas: 1    
+      endpoint_mode: dnsrr  
+      placement:
+        constraints: [node.role == manager]    
+  proxy:
+    image: luuhungcuong/docker-proxy
+    ports:
+      - "7001:7001"
+    networks:
+      net:
+        aliases:
+          - docker-proxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
+networks:
+  net:
+    driver: overlay
+    attachable: true
