@@ -1,8 +1,8 @@
-#Spark and hadoop standalone
-#Deploy stack
+# Spark and hadoop standalone
+## Deploy stack
 docker stack deploy -c docker-compose-cluster.yml hadoop
 
-#Start hadoop
+## Start hadoop
 docker container ls
 docker exec -it {hadoop-master-container id} bash
 
@@ -12,12 +12,13 @@ hadoop namenode -format
 sbin/start-dfs.sh
 sbin/start-yarn.sh
 
-#Seting socks5://127.0.0.1:7001 in browser
+## Seting socks5://127.0.0.1:7001 in browser
+Access hadoop master and spark master:
 http://hadoop-master:8088
 http://spark-master:7077
 
 
-#Test hadoop outside
+## Test hadoop outside
 Setting hdfs-site hadoop-master to 0.0.0.0:50070 and restart swarm
 from hdfs import *
 
@@ -29,7 +30,7 @@ import os
 os.system("ls /tmp/")
 
 
-#Start forwarder
+# Start forwarder
 docker service create \
         --name hadoop-master-forwarder \
         --constraint node.hostname==cuonglh \

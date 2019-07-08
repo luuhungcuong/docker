@@ -1,4 +1,4 @@
-#Build image
+# Build image
 docker build -t luuhungcuong/hadoop-base:v2.7.4 .
 
 # Deploy one Hadoop Cluster with docker
